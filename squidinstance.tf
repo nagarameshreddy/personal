@@ -48,7 +48,7 @@ user_data = <<EOF
   echo "*/10 * * * * aws s3 sync s3://bucket-name/ /etc/squid/ --exclude "*" --include "squid.conf"" >> /etc/crontab
   echo "@reboot iwatch /etc/squid/squid.conf -c 'sudo service squid restart'" >> /etc/crontab
   EOF
-iam_instance_profile = ""
+iam_instance_profile = "${aws_iam_role.Ec2-S3.id}"
 tags {
 	Name = "Squid Server"
 }
