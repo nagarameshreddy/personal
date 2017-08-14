@@ -26,7 +26,7 @@ resource "aws_iam_role_policy" "s3_access_policy" {
 resource "aws_iam_role_policy" "Cloudwatch_logs_policy" {
   name        = "cloudwatch_access_policy"
   role		= "${aws_iam_role.Ec2-S3.id}"
-  policy = "${file("cloudlogpolicy.json")}"
+  policy = "${file("cloudlogspolicy.json")}"
 
 }
 
