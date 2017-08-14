@@ -17,11 +17,11 @@ resource "aws_iam_role" "Ec2-S3" {
 EOF
 }
 
-resource "aws_iam_policy" "s3_access_policy" {
+resource "aws_iam_role_policy" "s3_access_policy" {
   name        = "s3_access_policy"
-  path        = "/"
+  role		= "${aws_iam_role.Ec2-S3.id}"
   policy = <<EOF
-  {
+{
   "Version": "2012-10-17",
   "Statement": [
     {
@@ -33,6 +33,33 @@ resource "aws_iam_policy" "s3_access_policy" {
 }
 EOF  
 }
+
+resource "aws_iam_role_policy" "Cloudwatch_logs_policy" {
+  name        = "s3_access_policy"
+  role		= "${aws_iam_role.Ec2-S3.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "logs:*"
+      ],
+      "Effect": "Allow",
+      "Resource": "*"
+    }
+  ]
+}
+EOF  
+}
+
+resource "aws_s3_bucket_object" "object" {
+  bucket = "your_bucket_name"
+  key    = "squid.conf"
+  source = "squid.conf"
+}
+
+
 resource "aws_instance" "squidserver" {
 ami = "ami-a4c7edb2"
 instance_type = "t2.micro"
@@ -56,10 +83,19 @@ provisioner "file" {
 	source = "squid.conf"
 	destination = "/etc/squid/squid.conf"
 	}
+provisioner "file" {
+	source = "awscli.conf"
+	destination = "/etc/awslogs/awscli.conf"
+	}	
+provisioner "file" {
+	source = "awslogs.conf"
+	destination = "/etc/awslogs/awslogs.conf"
+	}	
 provisioner "remote-exec" {
 	inline = [
 		"sudo service squid restart" ,
 		"iwatch /etc/squid/squid.conf -c 'sudo service squid restart'" ,
+		"sudo service awslogs restart"
 		]
 	
 	}
